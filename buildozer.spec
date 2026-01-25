@@ -13,13 +13,14 @@ package.domain = org.lony420
 source.dir = .
 
 # (list) Dateiendungen, die in die App aufgenommen werden sollen
-source.include_exts = py,png,jpg,jpeg,ttf,json
+# include save_data.txt and log files and all asset images
+source.include_exts = py,png,jpg,jpeg,ttf,json,txt
 
 # (str) Version der App
 version = 1.0
 
-# (list) Abhängigkeiten (Wichtig: pygame muss hier stehen!)
-requirements = python3,pygame
+# (list) Abhängigkeiten — use Kivy instead of pygame for Android packaging
+requirements = python3,kivy
 
 # (str) Orientierung (landscape, portrait oder all)
 orientation = portrait
@@ -40,9 +41,13 @@ android.minapi = 21
 # (list) Unterstützte Architekturen
 android.archs = arm64-v8a, armeabi-v7a
 
+# Ensure save_data.txt and smoke_log.txt are included as assets (adjust paths if needed)
+android.add_assets = save_data.txt, smoke_log.txt, assets
+
 [buildozer]
 # (int) Log-Level (2 ist am besten für Fehlersuche)
 log_level = 2
 
 # (str) Pfad zum Build-Verzeichnis
 bin_dir = ./bin
+

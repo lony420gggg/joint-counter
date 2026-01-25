@@ -1,4 +1,3 @@
-import pygame
 import time
 import os
 
@@ -28,6 +27,7 @@ PURPLE = (128, 0, 128)
 GRAY = (100, 100, 100)
 BG_COLOR = (25, 25, 25)
 
+
 def load_save_data():
     try:
         with open(SAVE_FILE, "r") as f:
@@ -42,10 +42,19 @@ def load_save_data():
     except:
         return 0, 0, 0, time.time(), 0.0, 0
 
+
 def save_save_data(counter, highscore, adblock, last_ts, total_time, sessions):
-    with open(SAVE_FILE, "w") as f:
-        f.write(f"{counter},{highscore},{adblock},{last_ts},{total_time},{sessions}")
+    try:
+        with open(SAVE_FILE, "w") as f:
+            f.write(f"{counter},{highscore},{adblock},{last_ts},{total_time},{sessions}")
+    except:
+        pass
+
 
 def log_smoke():
-    with open(SMOKE_LOG_FILE, "a") as f:
-        f.write(f"{time.time()}\n")
+    try:
+        with open(SMOKE_LOG_FILE, "a") as f:
+            f.write(f"{time.time()}\n")
+    except:
+        pass
+
