@@ -1,49 +1,63 @@
-import pygame
+from kivy.uix.button import Button as KivyButton
+from kivy.uix.image import Image
+from kivy.uix.floatlayout import FloatLayout
+from kivy.graphics import Color, RoundedRectangle
+from kivy.core.image import Image as CoreImage
 
-class Button:
-    def __init__(self, x, y, w, h, text, color, image_path=None):
-        self.base_rect = pygame.Rect(x, y, w, h)
-        self.rect = self.base_rect.copy()
+
+class Button(FloatLayout):
+    def __init__(self, x, y, w, h, text, color, image_path=None, **kwargs):
+        super().__init__(**kwargs)
+        self.pos = (x, y)
+        self.size = (w, h)
         self.text = text
         self.color = color
-        self.font = pygame.font.Font(None, 40)
         self.pressed = False
 
+        self._callback = None
+
+        self.btn = KivyButton(
+            text=text,
+            size_hint=(None, None),
+            size=(w, h),
+            pos=(0, 0),
+            background_normal="",
+            background_down="",
+            background_color=(*[c / 255 for c in color], 1),
+        )
+        self.btn.bind(on_press=self._on_press, on_release=self._on_release)
+        self.add_widget(self.btn)
+
         self.image = None
-        self.hover_image = None
         if image_path:
             try:
-                self.image = pygame.image.load(image_path).convert_alpha()
-                self.image = pygame.transform.scale(self.image, (w, h))
-                self.hover_image = self.image.copy()
-                self.hover_image.fill((40, 40, 40, 0), special_flags=pygame.BLEND_RGBA_ADD)
+                self.image = Image(
+                    source=image_path,
+                    size_hint=(None, None),
+                    size=(w, h),
+                    pos=(0, 0),
+                )
+                self.add_widget(self.image)
+                self.btn.background_color = (0, 0, 0, 0)
             except:
                 self.image = None
 
+    def _on_press(self, *_):
+        self.pressed = True
+        self.btn.size = (self.width - 10, self.height - 10)
+        self.btn.pos = (5, 5)
+
+    def _on_release(self, *_):
+        was_pressed = self.pressed
+        self.pressed = False
+        self.btn.size = (self.width, self.height)
+        self.btn.pos = (0, 0)
+        if was_pressed and self._callback:
+            self._callback()
+
+    def is_clicked(self, callback):
+        self._callback = callback
+
     def draw(self, screen):
-        mouse_pos = pygame.mouse.get_pos()
-        is_hover = self.rect.collidepoint(mouse_pos)
+        pass
 
-        if self.image:
-            screen.blit(self.hover_image if is_hover else self.image, self.rect.topleft)
-        else:
-            draw_color = self.color
-            if is_hover:
-                draw_color = tuple(min(c + 40, 255) for c in self.color)
-            pygame.draw.rect(screen, draw_color, self.rect, border_radius=20)
-
-        if self.text:
-            text_surf = self.font.render(self.text, True, (255, 255, 255))
-            screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
-
-    def is_clicked(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.rect.collidepoint(event.pos):
-                self.rect = self.base_rect.inflate(-10, -10)
-                self.pressed = True
-        if event.type == pygame.MOUSEBUTTONUP and self.pressed:
-            self.rect = self.base_rect.copy()
-            self.pressed = False
-            if self.rect.collidepoint(event.pos):
-                return True
-        return False
